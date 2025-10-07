@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quick 30-Second Challenge</title>
+<style>
+  :root{--bg:#0f1724;--card:#071026;--accent:#38bdf8;--muted:#94a3b8}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#e6eef6;background:linear-gradient(180deg,var(--bg),#051023 70%);}
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{width:760px;max-width:96vw;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:28px;box-shadow:0 8px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+  h1{margin:0 0 8px;font-size:20px}
+  p.lead{margin:0 0 18px;color:var(--muted)}
+  .big{font-size:28px;font-weight:600}
+  .start{display:inline-flex;gap:10px;align-items:center;padding:12px 18px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#60a5fa);color:#012;cursor:pointer;border:none;font-weight:700;box-shadow:0 6px 18px rgba(56,189,248,0.18)}
+  .hint{margin-top:12px;color:var(--muted);font-size:13px}
+  .progressWrap{margin-top:20px;background:#031025;border-radius:10px;padding:16px;display:none;flex-direction:column;gap:12px}
+  .bar{height:18px;background:#071828;border-radius:9px;overflow:hidden}
+  .barInner{height:100%;width:0%;border-radius:9px;background:linear-gradient(90deg,var(--accent),#7dd3fc);transition:width 0.3s linear}
+  .percent{font-weight:700}
+  /* modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(1,6,18,0.6),rgba(1,6,18,0.9));backdrop-filter:blur(3px);z-index:9999}
+  .modalCard{background:#fff;color:#012;border-radius:12px;padding:28px;max-width:720px; width:92%; box-shadow:0 18px 50px rgba(2,6,23,0.6);text-align:center}
+  .modalCard h2{margin:0 0 12px;font-size:22px}
+  .modalCard p{margin:0 0 18px;color:#102233}
+  .modalClose{display:inline-block;padding:10px 16px;border-radius:10px;background:#001f3f;color:#fff;text-decoration:none;font-weight:700;cursor:pointer}
+  /* tiny footer */
+  .foot{margin-top:14px;color:var(--muted);font-size:13px}
+  @media (max-width:520px){.card{padding:18px}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="title">
+      <h1 id="title">30-Second Focus Challenge</h1>
+      <p class="lead">We’re testing a quick focus exercise. Press <strong>Start</strong>, follow the on-screen prompt, then wait until it finishes.</p>
+
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+        <button class="start" id="startBtn" aria-label="Start challenge">Start challenge</button>
+        <div class="hint">Recommended: open in fullscreen for the best experience.</div>
+      </div>
+
+      <div class="progressWrap" id="progressBlock" aria-hidden="true">
+        <div class="big" id="stageText">Preparing the challenge…</div>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="barInner" id="barInner"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)">
+          <div id="leftNote">Do not switch tabs</div>
+          <div class="percent" id="percentText">0%</div>
+        </div>
+        <div class="foot">This is just a short simulation — keep your eyes on the center</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modalCard">
+      <h2 id="modalTitle">Surprise!</h2>
+      <p id="modalMessage">You got pranked — change this message in the code!</p>
+      <a class="modalClose" id="closeModal">I forgive you 😂</a>
+    </div>
+  </div>
+
+<script>
+/*
+  HOW TO CUSTOMIZE:
+  1) Change the customMessage variable below to the text you want to show.
+  2) Change delayMs to how long (ms) the fake activity runs before showing the message.
+  3) Save as prank.html and send the file OR host it somewhere and send the link.
+*/
+const customTitle = "Hey — gotcha!";
+const customMessage = "This was a little prank. Hope you laughed! ❤️ — from your friend";
+const delayMs = 6000; // how long the progress runs (ms) before the reveal; customize
+const progressTotal = 100;
+
+const startBtn = document.getElementById('startBtn');
+const progressBlock = document.getElementById('progressBlock');
+const barInner = document.getElementById('barInner');
+const percentText = document.getElementById('percentText');
+const stageText = document.getElementById('stageText');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessageEl = document.getElementById('modalMessage');
+const closeModal = document.getElementById('closeModal');
+
+function enterFullScreen(el){
+  if(el.requestFullscreen) return el.requestFullscreen();
+  if(el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+  if(el.msRequestFullscreen) return el.msRequestFullscreen();
+}
+function startProgress(totalMs){
+  progressBlock.style.display = 'flex';
+  progressBlock.setAttribute('aria-hidden','false');
+  let start = null;
+  const duration = totalMs;
+  function step(ts){
+    if(!start) start = ts;
+    const elapsed = ts - start;
+    const pct = Math.min(100, Math.floor((elapsed/duration) * 100));
+    barInner.style.width = pct + '%';
+    percentText.textContent = pct + '%';
+    if(pct < 30) stageText.textContent = 'Initializing…';
+    else if(pct < 70) stageText.textContent = 'Running checks…';
+    else if(pct < 100) stageText.textContent = 'Finalizing…';
+    else stageText.textContent = 'Complete';
+    if(pct < 100) requestAnimationFrame(step);
+    else setTimeout(showModal, 700);
+  }
+  requestAnimationFrame(step);
+}
+
+function showModal(){
+  modalTitle.textContent = customTitle;
+  modalMessageEl.textContent = customMessage;
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden','false');
+}
+
+startBtn.addEventListener('click', async (e) => {
+  // enter fullscreen to make it more convincing (requires user gesture)
+  try { await enterFullScreen(document.documentElement); } catch(_) {}
+  // begin fake activity
+  startBtn.disabled = true;
+  startBtn.style.opacity = 0.7;
+  // we run an apparent progress that finishes after delayMs
+  startProgress(delayMs);
+});
+
+// close modal (exits fullscreen if open)
+closeModal.addEventListener('click', async () => {
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden','true');
+  try { if(document.fullscreenElement) await document.exitFullscreen(); } catch(_) {}
+});
+</script>
+</body>
+</html>
