@@ -18,15 +18,21 @@
   .bar{height:18px;background:#071828;border-radius:9px;overflow:hidden}
   .barInner{height:100%;width:0%;border-radius:9px;background:linear-gradient(90deg,var(--accent),#7dd3fc);transition:width 0.3s linear}
   .percent{font-weight:700}
+  .foot{margin-top:14px;color:var(--muted);font-size:13px}
+
   /* modal */
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(1,6,18,0.6),rgba(1,6,18,0.9));backdrop-filter:blur(3px);z-index:9999}
-  .modalCard{background:#fff;color:#012;border-radius:12px;padding:28px;max-width:720px; width:92%; box-shadow:0 18px 50px rgba(2,6,23,0.6);text-align:center}
+  .modalCard{background:#fff;color:#012;border-radius:12px;padding:28px;max-width:720px;width:92%;box-shadow:0 18px 50px rgba(2,6,23,0.6);text-align:center}
   .modalCard h2{margin:0 0 12px;font-size:22px}
   .modalCard p{margin:0 0 18px;color:#102233}
-  .modalClose{display:inline-block;padding:10px 16px;border-radius:10px;background:#001f3f;color:#fff;text-decoration:none;font-weight:700;cursor:pointer}
-  /* tiny footer */
-  .foot{margin-top:14px;color:var(--muted);font-size:13px}
-  @media (max-width:520px){.card{padding:18px}}
+
+  /* drag game */
+  .dragArea{display:flex;justify-content:center;align-items:center;gap:60px;flex-wrap:wrap;margin-top:25px;}
+  .draggable{width:70px;cursor:grab;user-select:none;}
+  .dropzone{width:100px;height:120px;border:3px dashed #001f3f;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#001f3f;font-weight:700;transition:background 0.3s;}
+  .dropzone.over{background:#cce5ff;}
+  .success{font-size:22px;font-weight:700;color:#16a34a;margin-top:16px;animation:pop 0.6s ease;}
+  @keyframes pop{0%{transform:scale(0.7);opacity:0;}100%{transform:scale(1);opacity:1;}}
 </style>
 </head>
 <body>
@@ -59,20 +65,20 @@
     <div class="modalCard">
       <h2 id="modalTitle">Surprise!</h2>
       <p id="modalMessage">You got pranked — change this message in the code!</p>
-      <a class="modalClose" id="closeModal">I forgive you 😂</a>
+
+      <div class="dragArea">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/French_fries_200px.png/100px-French_fries_200px.png"
+             alt="Fries" class="draggable" id="fries" draggable="true">
+        <div class="dropzone" id="bag">👜 Bag</div>
+      </div>
+      <div id="successMsg"></div>
     </div>
   </div>
 
 <script>
-/*
-  HOW TO CUSTOMIZE:
-  1) Change the customMessage variable below to the text you want to show.
-  2) Change delayMs to how long (ms) the fake activity runs before showing the message.
-  3) Save as prank.html and send the file OR host it somewhere and send the link.
-*/
 const customTitle = "Hey Frank,";
 const customMessage = "Put the fries in the bag";
-const delayMs = 6000; // how long the progress runs (ms) before the reveal; customize
+const delayMs = 6000;
 const progressTotal = 100;
 
 const startBtn = document.getElementById('startBtn');
@@ -83,7 +89,6 @@ const stageText = document.getElementById('stageText');
 const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modalTitle');
 const modalMessageEl = document.getElementById('modalMessage');
-const closeModal = document.getElementById('closeModal');
 
 function enterFullScreen(el){
   if(el.requestFullscreen) return el.requestFullscreen();
@@ -118,22 +123,35 @@ function showModal(){
   modal.setAttribute('aria-hidden','false');
 }
 
-startBtn.addEventListener('click', async (e) => {
-  // enter fullscreen to make it more convincing (requires user gesture)
-  try { await enterFullScreen(document.documentElement); } catch(_) {}
-  // begin fake activity
-  startBtn.disabled = true;
-  startBtn.style.opacity = 0.7;
-  // we run an apparent progress that finishes after delayMs
-  startProgress(delayMs);
+// drag & drop logic
+const fries = document.getElementById('fries');
+const bag = document.getElementById('bag');
+const successMsg = document.getElementById('successMsg');
+
+fries.addEventListener('dragstart', (e) => {
+  e.dataTransfer.setData('text/plain','fries');
+});
+bag.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  bag.classList.add('over');
+});
+bag.addEventListener('dragleave', () => {
+  bag.classList.remove('over');
+});
+bag.addEventListener('drop', (e) => {
+  e.preventDefault();
+  bag.classList.remove('over');
+  successMsg.innerHTML = '<div class="success">✅ Fries secured! You’re forgiven 😂</div>';
+  fries.style.display = 'none';
 });
 
-// close modal (exits fullscreen if open)
-closeModal.addEventListener('click', async () => {
-  modal.style.display = 'none';
-  modal.setAttribute('aria-hidden','true');
-  try { if(document.fullscreenElement) await document.exitFullscreen(); } catch(_) {}
+startBtn.addEventListener('click', async () => {
+  try { await enterFullScreen(document.documentElement); } catch(_) {}
+  startBtn.disabled = true;
+  startBtn.style.opacity = 0.7;
+  startProgress(delayMs);
 });
 </script>
 </body>
 </html>
+
