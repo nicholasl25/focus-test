@@ -6,85 +6,42 @@
 <title>30-Second Focus Challenge</title>
 <style>
   :root{--bg:#0f1724;--card:#071026;--accent:#38bdf8;--muted:#94a3b8}
-  html,body{
-    height:100%;margin:0;
-    font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
-    color:#e6eef6;
-    background:linear-gradient(180deg,var(--bg),#051023 70%);
-    overflow:hidden;
-  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#e6eef6;background:linear-gradient(180deg,var(--bg),#051023 70%);}
   .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{
-    width:760px;max-width:96vw;
-    background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
-    border-radius:14px;padding:28px;
-    box-shadow:0 8px 30px rgba(2,6,23,0.6);
-    border:1px solid rgba(255,255,255,0.03);
-  }
-  h1{margin:0 0 8px;font-size:22px}
+  .card{width:760px;max-width:96vw;background:rgba(255,255,255,0.02);border-radius:14px;padding:28px;box-shadow:0 8px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);text-align:center;}
+  h1{margin:0 0 8px;font-size:20px}
   p.lead{margin:0 0 18px;color:var(--muted)}
   .big{font-size:28px;font-weight:600}
   .start{display:inline-flex;gap:10px;align-items:center;padding:12px 18px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#60a5fa);color:#012;cursor:pointer;border:none;font-weight:700;box-shadow:0 6px 18px rgba(56,189,248,0.18)}
   .hint{margin-top:12px;color:var(--muted);font-size:13px}
-  input.nameInput{padding:10px 14px;border-radius:8px;border:1px solid #1e293b;background:#0b162a;color:#e6eef6;font-size:15px;outline:none;width:220px;}
   .progressWrap{margin-top:20px;background:#031025;border-radius:10px;padding:16px;display:none;flex-direction:column;gap:12px}
   .bar{height:18px;background:#071828;border-radius:9px;overflow:hidden}
   .barInner{height:100%;width:0%;border-radius:9px;background:linear-gradient(90deg,var(--accent),#7dd3fc);transition:width 0.3s linear}
   .percent{font-weight:700}
   .foot{margin-top:14px;color:var(--muted);font-size:13px}
+  .nameInput{margin-bottom:14px;padding:8px;border-radius:6px;border:none;outline:none;width:180px;text-align:center}
 
-  /* game */
-  .gameArea{
-    position:absolute;inset:0;
-    background:radial-gradient(circle at top,var(--bg),#051023 80%);
-    display:none;
-    overflow:hidden;
-  }
-  .gameTitle{
-    position:fixed;top:20px;left:50%;transform:translateX(-50%);
-    font-size:22px;font-weight:700;text-align:center;
-  }
-  .bag{
-    position:absolute;
-    font-size:60px;
-    cursor:grab;
-    user-select:none;
-  }
-  .fry{
-    position:absolute;
-    font-size:50px;
-    transition:transform 0.2s;
-  }
-  .fry:hover{transform:scale(1.2);}
-  .scoreBox{
-    position:fixed;top:20px;right:30px;
-    font-size:16px;color:var(--muted);
-  }
-  .message{
-    position:fixed;
-    top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    background:#fff;color:#012;
-    padding:30px 40px;
-    border-radius:16px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.4);
-    text-align:center;
-    font-size:22px;
-    display:none;
-  }
+  /* modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(1,6,18,0.6),rgba(1,6,18,0.9));backdrop-filter:blur(3px);z-index:9999}
+  .modalCard{background:#fff;color:#012;border-radius:12px;padding:28px;max-width:720px;width:92%;box-shadow:0 18px 50px rgba(2,6,23,0.6);text-align:center}
+  .modalCard h2{margin:0 0 12px;font-size:22px}
+  .modalCard p{margin:0 0 18px;color:#102233}
+  .dragArea{position:relative;width:100%;height:400px;overflow:hidden;background:#eef6ff;border-radius:12px;display:flex;justify-content:center;align-items:center;flex-direction:column;}
+  .item{font-size:60px;position:absolute;cursor:grab;touch-action:none;user-select:none;}
+  .bag{font-size:70px;position:absolute;bottom:40px;left:50%;transform:translateX(-50%);}
+  .success{font-size:22px;font-weight:700;color:#16a34a;margin-top:16px;animation:pop 0.6s ease;}
+  @keyframes pop{0%{transform:scale(0.7);opacity:0;}100%{transform:scale(1);opacity:1;}}
 </style>
 </head>
 <body>
-  <div class="wrap" id="introScreen">
-    <div class="card">
+  <div class="wrap">
+    <div class="card" role="main">
       <h1>30-Second Focus Challenge</h1>
-      <p class="lead">We’re testing a quick focus exercise. Enter your name, press <strong>Start</strong>, and keep your eyes on the progress bar for 30 seconds.</p>
-
-      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-        <input type="text" id="nameInput" class="nameInput" placeholder="Enter your name" />
-        <button class="start" id="startBtn">Start challenge</button>
-        <div class="hint">Recommended: open in fullscreen for best experience.</div>
-      </div>
+      <p class="lead">Enter your name, hit <strong>Start</strong>, and stay focused until the end!</p>
+      <input id="nameInput" class="nameInput" placeholder="Your name" />
+      <br>
+      <button class="start" id="startBtn">Start challenge</button>
+      <div class="hint">Tip: works best fullscreen on phone.</div>
 
       <div class="progressWrap" id="progressBlock">
         <div class="big" id="stageText">Preparing the challenge…</div>
@@ -92,148 +49,126 @@
           <div class="barInner" id="barInner"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)">
-          <div>Do not switch tabs</div>
+          <div id="leftNote">Do not switch tabs</div>
           <div class="percent" id="percentText">0%</div>
         </div>
-        <div class="foot">Stay focused until it finishes…</div>
+        <div class="foot">Keep your eyes on the screen 👀</div>
       </div>
     </div>
   </div>
 
-  <!-- game -->
-  <div class="gameArea" id="gameArea">
-    <div class="gameTitle" id="gameTitle"></div>
-    <div class="scoreBox">Score: <span id="score">0</span></div>
+  <!-- modal game -->
+  <div class="modal" id="modal">
+    <div class="modalCard">
+      <h2 id="modalTitle">Hey!</h2>
+      <p id="modalMessage">Put the fries in the bag!</p>
+      <div class="dragArea" id="dragArea">
+        <div class="bag" id="bag">👜</div>
+      </div>
+      <div id="successMsg"></div>
+    </div>
   </div>
 
-  <div class="message" id="messageBox"></div>
-
 <script>
-const delayMs = 10000; // 30 seconds
+const delayMs = 9000; // shorter load
+const startBtn = document.getElementById('startBtn');
 const progressBlock = document.getElementById('progressBlock');
 const barInner = document.getElementById('barInner');
 const percentText = document.getElementById('percentText');
 const stageText = document.getElementById('stageText');
-const startBtn = document.getElementById('startBtn');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessageEl = document.getElementById('modalMessage');
 const nameInput = document.getElementById('nameInput');
-const introScreen = document.getElementById('introScreen');
-const gameArea = document.getElementById('gameArea');
-const gameTitle = document.getElementById('gameTitle');
-const messageBox = document.getElementById('messageBox');
-const scoreEl = document.getElementById('score');
-
-let score=0, totalFries=8, fries=[], bag;
-
-function enterFullScreen(el){
-  if(el.requestFullscreen) return el.requestFullscreen();
-  if(el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
-  if(el.msRequestFullscreen) return el.msRequestFullscreen();
-}
+const dragArea = document.getElementById('dragArea');
+const bag = document.getElementById('bag');
+const successMsg = document.getElementById('successMsg');
 
 function startProgress(totalMs){
-  progressBlock.style.display='flex';
-  let start=null;
-  const duration=totalMs;
+  progressBlock.style.display = 'flex';
+  let start = null;
   function step(ts){
-    if(!start) start=ts;
-    const elapsed=ts-start;
-    const pct=Math.min(100, Math.floor((elapsed/duration)*100));
-    barInner.style.width=pct+'%';
-    percentText.textContent=pct+'%';
-    if(pct<30) stageText.textContent='Initializing…';
-    else if(pct<70) stageText.textContent='Running checks…';
-    else if(pct<100) stageText.textContent='Finalizing…';
-    else stageText.textContent='Complete';
-    if(pct<100) requestAnimationFrame(step);
-    else setTimeout(startGame,700);
+    if(!start) start = ts;
+    const elapsed = ts - start;
+    const progress = Math.pow(elapsed / totalMs, 0.8);
+    const pct = Math.min(100, Math.floor(progress * 100));
+    barInner.style.width = pct + '%';
+    percentText.textContent = pct + '%';
+    if(pct < 30) stageText.textContent = 'Initializing…';
+    else if(pct < 70) stageText.textContent = 'Running checks…';
+    else if(pct < 100) stageText.textContent = 'Finalizing…';
+    else stageText.textContent = 'Complete!';
+    if(pct < 100) requestAnimationFrame(step);
+    else setTimeout(showModal, 400);
   }
   requestAnimationFrame(step);
 }
 
-startBtn.addEventListener('click', async ()=>{
-  if(!nameInput.value.trim()){ alert("Please enter your name first!"); return; }
-  try{ await enterFullScreen(document.documentElement); }catch(_){}
-  startBtn.disabled=true; startBtn.style.opacity=0.7;
-  startProgress(delayMs);
-});
-
-function startGame(){
-  introScreen.style.display='none';
-  gameArea.style.display='block';
+function showModal(){
   const name = nameInput.value.trim() || "there";
-  gameTitle.textContent = `Hey ${name}, put the fries in the bag! 🍟`;
-  score=0; fries=[]; scoreEl.textContent=0;
-  gameArea.innerHTML += ''; // ensure present elements
-  spawnBag();
-  spawnFries(totalFries);
+  modalTitle.textContent = `Hey ${name}!`;
+  modalMessageEl.textContent = "Put the fries in the bag!";
+  modal.style.display = 'flex';
+  createFries();
 }
 
-function spawnBag(){
-  bag=document.createElement('div');
-  bag.className='bag';
-  bag.textContent='👜';
-  bag.style.left='50%';
-  bag.style.top='60%';
-  gameArea.appendChild(bag);
-  let offsetX, offsetY, dragging=false;
-  bag.addEventListener('mousedown',(e)=>{
-    dragging=true; offsetX=e.offsetX; offsetY=e.offsetY; bag.style.cursor='grabbing';
-  });
-  document.addEventListener('mouseup',()=>{dragging=false;bag.style.cursor='grab';});
-  document.addEventListener('mousemove',(e)=>{
-    if(!dragging)return;
-    const rect=gameArea.getBoundingClientRect();
-    let x=e.clientX-rect.left-offsetX;
-    let y=e.clientY-rect.top-offsetY;
-    x=Math.max(0,Math.min(rect.width-60,x));
-    y=Math.max(0,Math.min(rect.height-60,y));
-    bag.style.left=x+'px';
-    bag.style.top=y+'px';
-    checkCollisions();
-  });
-}
+// Simple draggable fries (works on iPhone)
+function createFries(){
+  for(let i=0;i<4;i++){
+    const fry = document.createElement('div');
+    fry.textContent = '🍟';
+    fry.className = 'item';
+    fry.style.left = 20 + Math.random()*80 + '%';
+    fry.style.top = 10 + Math.random()*50 + '%';
+    dragArea.appendChild(fry);
 
-function spawnFries(count){
-  const rect=gameArea.getBoundingClientRect();
-  for(let i=0;i<count;i++){
-    const fry=document.createElement('div');
-    fry.className='fry';
-    fry.textContent='🍟';
-    fry.style.left=Math.random()*(rect.width-60)+'px';
-    fry.style.top=Math.random()*(rect.height-80)+'px';
-    gameArea.appendChild(fry);
-    fries.push(fry);
+    let offsetX, offsetY, dragging = false;
+
+    const move = (e)=>{
+      if(!dragging) return;
+      const touch = e.touches ? e.touches[0] : e;
+      fry.style.left = (touch.clientX - offsetX) + 'px';
+      fry.style.top = (touch.clientY - offsetY) + 'px';
+      checkCollision(fry);
+    };
+    const end = ()=> dragging=false;
+    const start = (e)=>{
+      dragging = true;
+      const touch = e.touches ? e.touches[0] : e;
+      const rect = fry.getBoundingClientRect();
+      offsetX = touch.clientX - rect.left;
+      offsetY = touch.clientY - rect.top;
+    };
+    fry.addEventListener('mousedown', start);
+    fry.addEventListener('touchstart', start);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('touchmove', move);
+    window.addEventListener('mouseup', end);
+    window.addEventListener('touchend', end);
   }
 }
 
-function checkCollisions(){
-  const bagRect=bag.getBoundingClientRect();
-  fries.forEach((fry,i)=>{
-    if(!fry)return;
-    const fryRect=fry.getBoundingClientRect();
-    const overlap=!(
-      bagRect.right<fryRect.left||
-      bagRect.left>fryRect.right||
-      bagRect.bottom<fryRect.top||
-      bagRect.top>fryRect.bottom
-    );
-    if(overlap){
-      fry.remove();
-      fries[i]=null;
-      score++;
-      scoreEl.textContent=score;
-      if(score>=totalFries){ endGame(); }
+function checkCollision(fry){
+  const fryRect = fry.getBoundingClientRect();
+  const bagRect = bag.getBoundingClientRect();
+  const overlap = !(fryRect.right < bagRect.left ||
+                    fryRect.left > bagRect.right ||
+                    fryRect.bottom < bagRect.top ||
+                    fryRect.top > bagRect.bottom);
+  if(overlap){
+    fry.remove();
+    if(!dragArea.querySelector('.item')){
+      successMsg.innerHTML = '<div class="success">✅ Fries secured!</div>';
     }
-  });
+  }
 }
 
-function endGame(){
-  const name=nameInput.value.trim()||"there";
-  messageBox.innerHTML=`✅ Great job, ${name}!<br>You collected all the fries! 🍟`;
-  messageBox.style.display='block';
-  gameArea.style.display='none';
-}
+startBtn.addEventListener('click', ()=>{
+  startBtn.disabled = true;
+  startProgress(delayMs);
+});
 </script>
 </body>
 </html>
+
 
