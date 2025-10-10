@@ -5,141 +5,144 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>30-Second Focus Challenge</title>
 <style>
-  :root{--bg:#0f1724;--card:#071026;--accent:#38bdf8;--muted:#94a3b8}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#e6eef6;background:linear-gradient(180deg,var(--bg),#051023 70%);}
-  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{width:760px;max-width:96vw;background:rgba(255,255,255,0.02);border-radius:14px;padding:28px;box-shadow:0 8px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);text-align:center;}
-  h1{margin:0 0 8px;font-size:22px}
-  p.lead{margin:0 0 18px;color:var(--muted)}
-  .nameInput{margin-bottom:14px;padding:8px;border-radius:6px;border:none;outline:none;width:180px;text-align:center}
-  .start{display:inline-flex;gap:10px;align-items:center;padding:12px 18px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#60a5fa);color:#012;cursor:pointer;border:none;font-weight:700;box-shadow:0 6px 18px rgba(56,189,248,0.18)}
-  .hint{margin-top:12px;color:var(--muted);font-size:13px}
-  .progressWrap{margin-top:20px;background:#031025;border-radius:10px;padding:16px;display:none;flex-direction:column;gap:12px}
-  .bar{height:18px;background:#071828;border-radius:9px;overflow:hidden}
-  .barInner{height:100%;width:0%;border-radius:9px;background:linear-gradient(90deg,var(--accent),#7dd3fc);transition:width 0.3s linear}
-  .percent{font-weight:700}
-  .foot{margin-top:14px;color:var(--muted);font-size:13px}
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --text: #f1f5f9;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card {
+    background: var(--card);
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    text-align: center;
+    max-width: 90%;
+  }
+  h1 { font-size: 1.6rem; margin-bottom: .5rem; }
+  p { margin: 0.5rem 0 1rem; }
 
-  /* modal */
-  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(1,6,18,0.6),rgba(1,6,18,0.9));backdrop-filter:blur(3px);z-index:9999}
-  .modalCard{background:#fff;color:#012;border-radius:12px;padding:28px;max-width:720px;width:92%;box-shadow:0 18px 50px rgba(2,6,23,0.6);text-align:center}
-  .modalCard h2{margin:0 0 12px;font-size:22px}
-  .modalCard p{margin:0 0 18px;color:#102233}
-  .sliderWrap{margin-top:30px;}
-  input[type=range]{width:80%;height:24px;-webkit-appearance:none;background:#ddd;border-radius:12px;outline:none;}
-  input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:40px;height:40px;border-radius:50%;background:none;cursor:pointer;font-size:30px;}
-  .friesThumb{display:flex;justify-content:center;align-items:center;}
-  .bag{font-size:50px;margin-top:10px;}
-  .success{font-size:22px;font-weight:700;color:#16a34a;margin-top:16px;animation:pop 0.6s ease;}
-  @keyframes pop{0%{transform:scale(0.7);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  .hidden { display: none; }
+
+  #bar {
+    height: 10px;
+    width: 0;
+    background: var(--accent);
+    border-radius: 5px;
+    transition: width 0.1s linear;
+  }
+
+  /* Game styling */
+  .game {
+    width: 100%;
+    max-width: 320px;
+    margin: 1rem auto 0;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 24px;
+    background: var(--accent);
+    border-radius: 12px;
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 32px;
+  }
+
+  /* Add 🍟 to thumb */
+  input[type=range]::-webkit-slider-thumb::after {
+    content: '🍟';
+  }
+
+  /* For Firefox */
+  input[type=range]::-moz-range-thumb {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    font-size: 32px;
+    content: '🍟';
+  }
+
+  .bag {
+    font-size: 2rem;
+    margin-top: 1rem;
+  }
+
+  .success {
+    font-size: 1.4rem;
+    margin-top: 1rem;
+    color: #4ade80;
+  }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card" role="main">
-      <h1>30-Second Focus Challenge</h1>
-      <p class="lead">Enter your name, hit <strong>Start</strong>, and stay focused until the end!</p>
-      <input id="nameInput" class="nameInput" placeholder="Your name" />
-      <br>
-      <button class="start" id="startBtn">Start challenge</button>
-      <div class="hint">Tip: works best fullscreen on your phone.</div>
-
-      <div class="progressWrap" id="progressBlock">
-        <div class="big" id="stageText">Preparing the challenge…</div>
-        <div class="bar">
-          <div class="barInner" id="barInner"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)">
-          <div>Do not switch tabs</div>
-          <div class="percent" id="percentText">0%</div>
-        </div>
-      </div>
-    </div>
+  <!-- Intro -->
+  <div class="card" id="intro">
+    <h1>30-Second Focus Challenge</h1>
+    <p>Get ready...</p>
+    <div id="bar"></div>
   </div>
 
-  <!-- modal -->
-  <div class="modal" id="modal">
-    <div class="modalCard">
-      <h2 id="modalTitle">Hey!</h2>
-      <p id="modalMessage">Put the fries in the bag!</p>
-      <div class="sliderWrap">
-        <div id="sliderContainer">
-          <input type="range" id="slider" min="0" max="100" value="0">
-        </div>
-        <div class="bag">👜</div>
-      </div>
-      <div id="successMsg"></div>
+  <!-- Game -->
+  <div class="card hidden" id="game">
+    <div class="game">
+      <input type="range" min="0" max="100" value="0" id="frySlider">
+      <div class="bag">🛍️</div>
+      <div class="success hidden" id="successMsg">Fries secured!</div>
     </div>
   </div>
 
 <script>
-const delayMs = 3000;
-const startBtn = document.getElementById('startBtn');
-const progressBlock = document.getElementById('progressBlock');
-const barInner = document.getElementById('barInner');
-const percentText = document.getElementById('percentText');
-const stageText = document.getElementById('stageText');
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modalTitle');
-const modalMessageEl = document.getElementById('modalMessage');
-const nameInput = document.getElementById('nameInput');
-const slider = document.getElementById('slider');
-const successMsg = document.getElementById('successMsg');
-
-function startProgress(totalMs){
-  progressBlock.style.display = 'flex';
+  // Quick loading animation (~3s)
+  const bar = document.getElementById('bar');
+  const intro = document.getElementById('intro');
+  const game = document.getElementById('game');
+  const duration = 3000;
   let start = null;
-  function step(ts){
-    if(!start) start = ts;
-    const elapsed = ts - start;
-    const pct = Math.min(100, Math.floor((elapsed/totalMs)*100));
-    barInner.style.width = pct + '%';
-    percentText.textContent = pct + '%';
-    if(pct < 50) stageText.textContent = 'Focusing…';
-    else if(pct < 100) stageText.textContent = 'Almost there…';
-    if(pct < 100) requestAnimationFrame(step);
-    else setTimeout(showModal, 300);
-  }
-  requestAnimationFrame(step);
-}
 
-function showModal(){
-  const name = nameInput.value.trim() || "there";
-  modalTitle.textContent = `Hey ${name}!`;
-  modalMessageEl.textContent = "Slide the fries into the bag!";
-  modal.style.display = 'flex';
-  styleSlider();
-}
-
-function styleSlider(){
-  const sliderEl = document.getElementById('slider');
-  const friesEmoji = '🍟';
-  sliderEl.style.setProperty('--thumb-text', `"${friesEmoji}"`);
-  sliderEl.addEventListener('input', ()=>{
-    if(sliderEl.value >= 95){
-      successMsg.innerHTML = '<div class="success">✅ Fries secured!</div>';
-    } else {
-      successMsg.innerHTML = '';
+  function animate(timestamp) {
+    if (!start) start = timestamp;
+    const progress = timestamp - start;
+    const pct = Math.min(100, (progress / duration) * 100);
+    bar.style.width = pct + '%';
+    if (progress < duration) requestAnimationFrame(animate);
+    else {
+      intro.classList.add('hidden');
+      game.classList.remove('hidden');
     }
+  }
+  requestAnimationFrame(animate);
+
+  // Game logic
+  const slider = document.getElementById('frySlider');
+  const success = document.getElementById('successMsg');
+  slider.addEventListener('input', () => {
+    if (parseInt(slider.value) >= 98) success.classList.remove('hidden');
+    else success.classList.add('hidden');
   });
-}
-
-// custom fries thumb on all browsers
-document.querySelector('style').textContent += `
-  input[type=range]::-webkit-slider-thumb::before {
-    content: '🍟';
-  }
-  input[type=range]::-webkit-slider-thumb {
-    background: none;
-  }
-`;
-
-startBtn.addEventListener('click', ()=>{
-  startBtn.disabled = true;
-  startProgress(delayMs);
-});
 </script>
 </body>
 </html>
+
 
 
