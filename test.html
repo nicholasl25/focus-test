@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Quick 30-Second Challenge</title>
+<title>30-Second Challenge</title>
 <style>
   :root{--bg:#0f1724;--card:#071026;--accent:#38bdf8;--muted:#94a3b8}
   html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#e6eef6;background:linear-gradient(180deg,var(--bg),#051023 70%);}
@@ -26,55 +26,54 @@
   .modalCard h2{margin:0 0 12px;font-size:22px}
   .modalCard p{margin:0 0 18px;color:#102233}
 
-  /* drag game */
-  .dragArea{display:flex;justify-content:center;align-items:center;gap:60px;flex-wrap:wrap;margin-top:25px;}
-  .draggable{font-size:60px;cursor:grab;user-select:none;}
-  .dropzone{width:100px;height:120px;border:3px dashed #001f3f;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#001f3f;font-weight:700;transition:background 0.3s;}
-  .dropzone.over{background:#cce5ff;}
+  /* mobile drag game */
+  .dragArea{display:flex;justify-content:center;align-items:center;gap:60px;flex-wrap:wrap;margin-top:25px;position:relative;}
+  .draggable{font-size:60px;touch-action:none;user-select:none;position:absolute;}
+  .dropzone{width:100px;height:120px;border:3px dashed #001f3f;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#001f3f;font-weight:700;transition:background 0.3s;position:relative;}
   .success{font-size:22px;font-weight:700;color:#16a34a;margin-top:16px;animation:pop 0.6s ease;}
   @keyframes pop{0%{transform:scale(0.7);opacity:0;}100%{transform:scale(1);opacity:1;}}
   input.nameInput{padding:10px 14px;border-radius:8px;border:1px solid #1e293b;background:#0b162a;color:#e6eef6;font-size:15px;outline:none;width:220px;}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card" role="main" aria-labelledby="title">
-      <h1 id="title">30-Second Focus Challenge</h1>
-      <p class="lead">We’re testing a quick focus exercise. Enter your name, press <strong>Start</strong>, and follow the on-screen prompt.</p>
+<div class="wrap">
+  <div class="card" role="main" aria-labelledby="title">
+    <h1 id="title">30-Second Focus Challenge</h1>
+    <p class="lead">Enter your name, press <strong>Start</strong>, and follow the on-screen prompt.</p>
 
-      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-        <input type="text" id="nameInput" class="nameInput" placeholder="Enter your name" aria-label="Your name" />
-        <button class="start" id="startBtn" aria-label="Start challenge">Start challenge</button>
-        <div class="hint">Recommended: open in fullscreen for the best experience.</div>
-      </div>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <input type="text" id="nameInput" class="nameInput" placeholder="Enter your name" aria-label="Your name" />
+      <button class="start" id="startBtn" aria-label="Start challenge">Start challenge</button>
+      <div class="hint">Recommended: open in fullscreen for the best experience.</div>
+    </div>
 
-      <div class="progressWrap" id="progressBlock" aria-hidden="true">
-        <div class="big" id="stageText">Preparing the challenge…</div>
-        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div class="barInner" id="barInner"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)">
-          <div id="leftNote">Do not switch tabs</div>
-          <div class="percent" id="percentText">0%</div>
-        </div>
-        <div class="foot">This is just a short simulation — keep your eyes on the center</div>
+    <div class="progressWrap" id="progressBlock" aria-hidden="true">
+      <div class="big" id="stageText">Preparing the challenge…</div>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="barInner" id="barInner"></div>
       </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted)">
+        <div id="leftNote">Do not switch tabs</div>
+        <div class="percent" id="percentText">0%</div>
+      </div>
+      <div class="foot">This is just a short simulation — keep your eyes on the center</div>
     </div>
   </div>
+</div>
 
-  <!-- modal -->
-  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modalCard">
-      <h2 id="modalTitle"></h2>
-      <p id="modalMessage"></p>
+<!-- modal -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modalCard">
+    <h2 id="modalTitle"></h2>
+    <p id="modalMessage"></p>
 
-      <div class="dragArea">
-        <div class="draggable" id="fries" draggable="true">🍟</div>
-        <div class="dropzone" id="bag">👜 Bag</div>
-      </div>
-      <div id="successMsg"></div>
+    <div class="dragArea" id="dragArea">
+      <div class="draggable" id="fries">🍟</div>
+      <div class="dropzone" id="bag">👜 Bag</div>
     </div>
+    <div id="successMsg"></div>
   </div>
+</div>
 
 <script>
 const delayMs = 6000;
@@ -87,13 +86,11 @@ const modal = document.getElementById('modal');
 const modalTitle = document.getElementById('modalTitle');
 const modalMessageEl = document.getElementById('modalMessage');
 const nameInput = document.getElementById('nameInput');
+const fries = document.getElementById('fries');
+const bag = document.getElementById('bag');
+const successMsg = document.getElementById('successMsg');
 
-function enterFullScreen(el){
-  if(el.requestFullscreen) return el.requestFullscreen();
-  if(el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
-  if(el.msRequestFullscreen) return el.msRequestFullscreen();
-}
-
+// start progress bar
 function startProgress(totalMs){
   progressBlock.style.display = 'flex';
   progressBlock.setAttribute('aria-hidden','false');
@@ -115,6 +112,7 @@ function startProgress(totalMs){
   requestAnimationFrame(step);
 }
 
+// show modal
 function showModal(){
   const name = nameInput.value.trim() || "there";
   modalTitle.textContent = `Hey ${name},`;
@@ -123,11 +121,10 @@ function showModal(){
   modal.setAttribute('aria-hidden','false');
 }
 
-// Mobile-friendly drag
-function makeDraggable(el, dropzone) {
+// mobile touch drag
+function makeDraggable(el, dropzone){
   let offsetX = 0, offsetY = 0;
-
-  el.addEventListener('touchstart', (e) => {
+  el.addEventListener('touchstart', e=>{
     const touch = e.touches[0];
     const rect = el.getBoundingClientRect();
     offsetX = touch.clientX - rect.left;
@@ -136,25 +133,22 @@ function makeDraggable(el, dropzone) {
     el.style.zIndex = 1000;
   });
 
-  el.addEventListener('touchmove', (e) => {
+  el.addEventListener('touchmove', e=>{
     e.preventDefault();
     const touch = e.touches[0];
     el.style.left = (touch.clientX - offsetX) + 'px';
     el.style.top = (touch.clientY - offsetY) + 'px';
   });
 
-  el.addEventListener('touchend', (e) => {
+  el.addEventListener('touchend', e=>{
     const rect = el.getBoundingClientRect();
     const dropRect = dropzone.getBoundingClientRect();
-    
     if (
       rect.left + rect.width/2 > dropRect.left &&
       rect.right - rect.width/2 < dropRect.right &&
       rect.top + rect.height/2 > dropRect.top &&
       rect.bottom - rect.height/2 < dropRect.bottom
-    ) {
-      // Success
-      dropzone.classList.remove('over');
+    ){
       successMsg.innerHTML = '<div class="success">✅ Fries secured!</div>';
       el.style.display = 'none';
     }
@@ -162,3 +156,17 @@ function makeDraggable(el, dropzone) {
 }
 
 makeDraggable(fries, bag);
+
+startBtn.addEventListener('click', () => {
+  if(!nameInput.value.trim()){
+    alert("Please enter your name first!");
+    return;
+  }
+  startBtn.disabled = true;
+  startBtn.style.opacity = 0.7;
+  startProgress(delayMs);
+});
+</script>
+</body>
+</html>
+
